@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SP1 Integration Assistant | Zero-Knowledge Proof Generation</title>
+    <meta name="description" content="Transform your code into zero-knowledge proofs with AI-powered SP1 integration">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Color System */
+            --primary: #0066FF;
+            --primary-dark: #0052CC;
+            --primary-light: #E6F0FF;
+            --accent: #7C3AED;
+            --success: #10B981;
+            --error: #EF4444;
+            --warning: #F59E0B;
+            
+            /* Provider Colors */
+            --anthropic: #8B5CF6;
+            --openai: #10A37F;
+            --google: #4285F4;
+            
+            /* Neutrals */
+            --gray-50: #FAFAFA;
+            --gray-100: #F4F4F5;
+            --gray-200: #E4E4E7;
+            --gray-300: #D4D4D8;
+            --gray-400: #A1A1AA;
+            --gray-500: #71717A;
+            --gray-600: #52525B;
+            --gray-700: #3F3F46;
+            --gray-800: #27272A;
+            --gray-900: #18181B;
+            
+            /* Spacing */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            --space-3xl: 4rem;
+            
+            /* Typography */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+            
+            /* Animations */
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: #FFFFFF;
+            color: var(--gray-900);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Background Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, var(--primary-light) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-xl);
+        }
+
+        /* Header */
+        header {
+            padding: var(--space-2xl) 0;
+            text-align: center;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-lg);
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 20px;
+            letter-spacing: -0.5px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: var(--space-sm);
+            background: linear-gradient(135deg, var(--gray-900) 0%, var(--gray-700) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--gray-600);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: var(--space-xs) var(--space-md);
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-top: var(--space-lg);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-2xl);
+            margin-top: var(--space-3xl);
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card */
+        .card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: 16px;
+            padding: var(--space-xl);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--space-lg);
+            color: var(--gray-900);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: var(--space-xl);
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: var(--space-sm);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        select, textarea, input[type="password"], input[type="text"] {
+            width: 100%;
+            padding: var(--space-md);
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: var(--font-sans);
+            transition: var(--transition);
+            background: white;
+        }
+
+        select:focus, textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        /* API Key Section */
+        .api-key-section {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: var(--space-lg);
+            margin-bottom: var(--space-xl);
+            display: none;
+        }
+
+        .api-key-section.active {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .api-key-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+
+        .provider-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .provider-anthropic { background: var(--anthropic); }
+        .provider-openai { background: var(--openai); }
+        .provider-google { background: var(--google); }
+
+        /* Model Grid */
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .model-card {
+            padding: var(--space-md);
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .model-card:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .model-card.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .model-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .model-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: var(--space-xs);
+        }
+
+        .model-provider {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+        }
+
+        /* Context Size Toggle */
+        .context-toggle {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-lg);
+        }
+
+        .context-option {
+            flex: 1;
+            padding: var(--space-sm) var(--space-md);
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.875rem;
+        }
+
+        .context-option:hover {
+            border-color: var(--primary);
+        }
+
+        .context-option.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        /* Cost Estimate */
+        .cost-estimate {
+            background: var(--warning) + '10';
+            border: 1px solid var(--warning);
+            border-radius: 8px;
+            padding: var(--space-md);
+            margin-bottom: var(--space-lg);
+            font-size: 0.875rem;
+            color: var(--gray-700);
+        }
+
+        .cost-amount {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        /* Button */
+        .button {
+            width: 100%;
+            padding: var(--space-md) var(--space-xl);
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.25);
+        }
+
+        .button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .button:disabled {
+            background: var(--gray-300);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .button-loading {
+            color: transparent;
+        }
+
+        .button-loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid white;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Output Section */
+        .output-section {
+            margin-top: var(--space-2xl);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .output-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-lg);
+        }
+
+        .output-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .copy-button {
+            padding: var(--space-sm) var(--space-md);
+            background: var(--gray-100);
+            border: 1px solid var(--gray-200);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .copy-button:hover {
+            background: var(--gray-200);
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--gray-900);
+            color: var(--gray-100);
+            padding: var(--space-xl);
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            position: relative;
+            margin-bottom: var(--space-lg);
+        }
+
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Status Messages */
+        .status {
+            padding: var(--space-md) var(--space-lg);
+            border-radius: 8px;
+            margin-bottom: var(--space-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .status-loading {
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .status-success {
+            background: #D1FAE5;
+            color: #065F46;
+            border: 1px solid #34D399;
+        }
+
+        .status-error {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #F87171;
+        }
+
+        .status-warning {
+            background: #FEF3C7;
+            color: #92400E;
+            border: 1px solid #FCD34D;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid currentColor;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: var(--space-lg);
+            margin-top: var(--space-xl);
+        }
+
+        .info-box h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--gray-600);
+            margin-bottom: var(--space-sm);
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-box li {
+            padding: var(--space-xs) 0;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .info-box li::before {
+            content: '?';
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Collapsible */
+        .collapsible {
+            margin-top: var(--space-md);
+        }
+
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-md);
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .collapsible-header:hover {
+            background: var(--gray-100);
+        }
+
+        .collapsible-content {
+            display: none;
+            padding: var(--space-md);
+            border: 1px solid var(--gray-200);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            background: white;
+        }
+
+        .collapsible.open .collapsible-content {
+            display: block;
+        }
+
+        .collapsible.open .collapsible-header {
+            border-radius: 8px 8px 0 0;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: var(--space-3xl) 0 var(--space-xl);
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.125rem;
+            }
+            
+            .main-content {
+                gap: var(--space-xl);
+            }
+            
+            .card {
+                padding: var(--space-lg);
+            }
+            
+            .model-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">SP1</div>
+            </div>
+            <h1>SP1 Integration Assistant</h1>
+            <p class="subtitle">
+                Transform your verification logic into zero-knowledge proofs with AI-powered code generation
+            </p>
+            <span class="badge">Powered by Succinct Network</span>
+        </header>
+
+        <main class="main-content">
+            <div class="card">
+                <h2 class="card-title">Configuration</h2>
+                
+                <div class="form-group">
+                    <label for="template">Template</label>
+                    <div class="select-wrapper">
+                        <select id="template">
+                            <option value="">Loading templates...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>AI Model</label>
+                    <div id="modelGrid" class="model-grid">
+                        <!-- Models will be populated here -->
+                    </div>
+                </div>
+
+                <div id="apiKeySection" class="api-key-section">
+                    <div class="api-key-header">
+                        <div id="providerIcon" class="provider-icon"></div>
+                        <div>
+                            <div style="font-weight: 600;">API Key Required</div>
+                            <div style="font-size: 0.875rem; color: var(--gray-600);">
+                                Enter your <span id="providerName"></span> API key
+                            </div>
+                        </div>
+                    </div>
+                    <input 
+                        type="password" 
+                        id="apiKey" 
+                        placeholder="Enter your API key (never stored)"
+                        style="font-family: var(--font-mono);"
+                    />
+                    <div style="margin-top: var(--space-sm); font-size: 0.75rem; color: var(--gray-500);">
+                        Your API key is only used for this session and never stored
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Documentation Context</label>
+                    <div id="contextToggle" class="context-toggle">
+                        <div class="context-option selected" data-size="pattern">
+                            Pattern-Based
+                            <div style="font-size: 0.75rem; color: var(--gray-500);">Recommended</div>
+                        </div>
+                        <div class="context-option" data-size="minimal">
+                            Minimal
+                            <div style="font-size: 0.75rem; color: var(--gray-500);">~2k tokens</div>
+                        </div>
+                        <div class="context-option" data-size="full">
+                            Full Docs
+                            <div style="font-size: 0.75rem; color: var(--gray-500);">~14k tokens</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="costEstimate" class="cost-estimate" style="display: none;">
+                    Estimated cost: <span class="cost-amount">$0.00</span>
+                    <div style="font-size: 0.75rem; margin-top: 4px;">
+                        Based on selected model and context size
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="code">Verification Logic</label>
+                    <textarea 
+                        id="code" 
+                        placeholder="// Enter your verification requirements&#10;// Example: Verify that a score is valid for a specific game mode&#10;function verify(gameId, score) {&#10;  // Your logic here&#10;}"
+                        spellcheck="false"
+                    ></textarea>
+                </div>
+
+                <button id="generate" class="button" onclick="generateIntegration()">
+                    Generate SP1 Integration
+                </button>
+
+                <div class="collapsible" style="margin-top: var(--space-xl);">
+                    <div class="collapsible-header" onclick="toggleCollapsible(this.parentElement)">
+                        <span>Quick Reference</span>
+                        <span>?</span>
+                    </div>
+                    <div class="collapsible-content">
+                        <h4 style="margin-bottom: var(--space-md);">SP1 Facts</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="padding: 4px 0;">? Proofs take 30-90 seconds to generate</li>
+                            <li style="padding: 4px 0;">? Network proving costs ~$0.02-0.05 per proof</li>
+                            <li style="padding: 4px 0;">? Remove "0x" prefix from private keys</li>
+                            <li style="padding: 4px 0;">? Keep verification logic simple for lower costs</li>
+                        </ul>
+                        
+                        <h4 style="margin-top: var(--space-lg); margin-bottom: var(--space-md);">Model Recommendations</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="padding: 4px 0;">? <strong>Claude 4 Opus</strong>: Best for complex code generation</li>
+                            <li style="padding: 4px 0;">? <strong>GPT-4.1 Turbo</strong>: Great all-around performance</li>
+                            <li style="padding: 4px 0;">? <strong>Gemini 2.5 Pro</strong>: Best value, huge context window</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">Generated Integration</h2>
+                <div id="output">
+                    <div style="text-align: center; padding: 80px 20px; color: var(--gray-400);">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 16px;">
+                            <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        <p>Your generated SP1 integration will appear here</p>
+                        <p style="font-size: 0.875rem; margin-top: 8px;">
+                            Select a template, model, and enter your verification logic to begin
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>
+                Built with SP1 zkVM • 
+                <a href="https://github.com/succinctlabs/sp1" target="_blank">Documentation</a> • 
+                <a href="https://decompositionfacility.xyz" target="_blank">decompositionfacility.xyz</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        let isGenerating = false;
+        let selectedModel = null;
+        let selectedContextSize = 'pattern';
+        let models = [];
+        let templates = [];
+
+        // Initialize
+        async function init() {
+            try {
+                // Load templates
+                const templatesRes = await fetch('/api/templates');
+                templates = await templatesRes.json();
+                const templateSelect = document.getElementById('template');
+                
+                templateSelect.innerHTML = templates.map(t => 
+                    `<option value="${t.id}">${t.name}</option>`
+                ).join('');
+
+                // Load models
+                const modelsRes = await fetch('/api/models');
+                models = await modelsRes.json();
+                renderModels();
+
+                // Set defaults
+                templateSelect.value = 'game-score';
+                selectModel('direct');
+                
+                // Setup context toggle
+                setupContextToggle();
+
+            } catch (error) {
+                console.error('Init error:', error);
+                showError('Failed to load configuration. Please refresh the page.');
+            }
+        }
+
+        function renderModels() {
+            const grid = document.getElementById('modelGrid');
+            
+            const modelsByProvider = {
+                none: models.filter(m => m.provider === 'none'),
+                anthropic: models.filter(m => m.provider === 'anthropic'),
+                openai: models.filter(m => m.provider === 'openai'),
+                google: models.filter(m => m.provider === 'google')
+            };
+            
+            let html = '';
+            
+            // Add provider sections
+            Object.entries(modelsByProvider).forEach(([provider, providerModels]) => {
+                if (providerModels.length === 0) return;
+                
+                html += `<div style="grid-column: 1 / -1; margin-top: ${provider !== 'none' ? 'var(--space-md)' : '0'};">`;
+                if (provider !== 'none') {
+                    html += `<div style="font-weight: 600; text-transform: capitalize; margin-bottom: var(--space-sm); color: var(--gray-700);">
+                        ${provider === 'anthropic' ? 'Anthropic Claude' : provider}
+                    </div>`;
+                }
+                html += '<div class="model-grid">';
+                
+                providerModels.forEach(model => {
+                    html += `
+                        <div class="model-card ${model.recommended ? 'recommended' : ''}" 
+                             data-model="${model.id}" 
+                             data-provider="${model.provider}"
+                             onclick="selectModel('${model.id}')">
+                            <div class="model-name">${model.name}</div>
+                            <div class="model-provider">${model.description}</div>
+                            ${model.recommended ? '<div style="color: var(--success); font-size: 0.75rem; margin-top: 4px;">Recommended</div>' : ''}
+                        </div>
+                    `;
+                });
+                
+                html += '</div></div>';
+            });
+            
+            grid.innerHTML = html;
+        }
+
+        function selectModel(modelId) {
+            selectedModel = modelId;
+            
+            // Update UI
+            document.querySelectorAll('.model-card').forEach(card => {
+                card.classList.toggle('selected', card.dataset.model === modelId);
+            });
+            
+            // Show/hide API key section
+            const model = models.find(m => m.id === modelId);
+            const apiKeySection = document.getElementById('apiKeySection');
+            
+            if (model && model.requiresKey) {
+                apiKeySection.classList.add('active');
+                
+                // Update provider info
+                const providerIcon = document.getElementById('providerIcon');
+                const providerName = document.getElementById('providerName');
+                
+                providerIcon.className = `provider-icon provider-${model.provider}`;
+                providerIcon.textContent = model.provider.charAt(0).toUpperCase();
+                providerName.textContent = model.provider.charAt(0).toUpperCase() + model.provider.slice(1);
+                
+                // Update cost estimate
+                updateCostEstimate();
+            } else {
+                apiKeySection.classList.remove('active');
+                document.getElementById('costEstimate').style.display = 'none';
+            }
+        }
+
+        function setupContextToggle() {
+            document.querySelectorAll('.context-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.context-option').forEach(opt => 
+                        opt.classList.remove('selected')
+                    );
+                    this.classList.add('selected');
+                    selectedContextSize = this.dataset.size;
+                    updateCostEstimate();
+                });
+            });
+        }
+
+        async function updateCostEstimate() {
+            const model = models.find(m => m.id === selectedModel);
+            if (!model || !model.requiresKey) {
+                document.getElementById('costEstimate').style.display = 'none';
+                return;
+            }
+            
+            const template = document.getElementById('template').value;
+            const code = document.getElementById('code').value || '';
+            
+            try {
+                const response = await fetch('/api/estimate-cost', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: selectedModel,
+                        template,
+                        code,
+                        contextSize: selectedContextSize
+                    })
+                });
+                
+                const estimate = await response.json();
+                
+                document.getElementById('costEstimate').style.display = 'block';
+                document.querySelector('.cost-amount').textContent = `$${estimate.estimatedCost}`;
+                
+            } catch (error) {
+                console.error('Cost estimate error:', error);
+            }
+        }
+
+        async function generateIntegration() {
+            if (isGenerating) return;
+
+            const template = document.getElementById('template').value;
+            const code = document.getElementById('code').value;
+            const output = document.getElementById('output');
+            const button = document.getElementById('generate');
+            
+            const model = models.find(m => m.id === selectedModel);
+            let apiKey = null;
+
+            if (!template || !code.trim()) {
+                showError('Please select a template and provide verification logic');
+                return;
+            }
+
+            if (!selectedModel) {
+                showError('Please select a model');
+                return;
+            }
+
+            // Get API key if required
+            if (model && model.requiresKey) {
+                apiKey = document.getElementById('apiKey').value;
+                if (!apiKey) {
+                    showError('Please enter your API key');
+                    return;
+                }
+            }
+
+            isGenerating = true;
+            button.disabled = true;
+            button.classList.add('button-loading');
+            button.textContent = 'Generating...';
+
+            output.innerHTML = `
+                <div class="status status-loading">
+                    <span class="spinner"></span>
+                    <span>Generating SP1 integration${model.requiresKey ? ' with ' + model.name : ''}...</span>
+                </div>
+                ${model.requiresKey ? '<div style="font-size: 0.875rem; color: var(--gray-600); margin-top: 8px;">This may take 5-15 seconds depending on the model and complexity.</div>' : ''}
+            `;
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        template, 
+                        model: selectedModel, 
+                        code,
+                        apiKey,
+                        contextSize: selectedContextSize
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResult(data.result);
+                } else {
+                    throw new Error(data.error || 'Generation failed');
+                }
+            } catch (error) {
+                console.error('Generation error:', error);
+                showError(error.message || 'Failed to generate SP1 integration');
+            } finally {
+                isGenerating = false;
+                button.disabled = false;
+                button.classList.remove('button-loading');
+                button.textContent = 'Generate SP1 Integration';
+            }
+        }
+
+        function displayResult(result) {
+            const output = document.getElementById('output');
+            
+            let statusHtml = '';
+            if (result.enhanced) {
+                statusHtml = `
+                    <div class="status status-success">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>SP1 Integration generated successfully with ${result.model}!</span>
+                    </div>
+                `;
+            } else if (result.error) {
+                statusHtml = `
+                    <div class="status status-warning">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>${result.error}</span>
+                    </div>
+                `;
+            } else {
+                statusHtml = `
+                    <div class="status status-success">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>SP1 Integration generated successfully!</span>
+                    </div>
+                `;
+            }
+            
+            output.innerHTML = `
+                ${statusHtml}
+                
+                ${result.fromCache ? '<div style="font-size: 0.875rem; color: var(--gray-600); margin-bottom: var(--space-lg);">Retrieved from cache</div>' : ''}
+                
+                <div class="output-section">
+                    <div class="output-header">
+                        <h3 class="output-title">SP1 Program (main.rs)</h3>
+                        <button class="copy-button" onclick="copyToClipboard('${escapeForAttribute(result.program)}', this)">
+                            Copy
+                        </button>
+                    </div>
+                    <div class="code-block">
+                        <pre>${escapeHtml(result.program)}</pre>
+                    </div>
+                </div>
+                
+                <div class="output-section">
+                    <div class="output-header">
+                        <h3 class="output-title">Prove Script</h3>
+                        <button class="copy-button" onclick="copyToClipboard('${escapeForAttribute(result.proveScript)}', this)">
+                            Copy
+                        </button>
+                    </div>
+                    <div class="code-block">
+                        <pre>${escapeHtml(result.proveScript)}</pre>
+                    </div>
+                </div>
+                
+                <div class="output-section">
+                    <div class="output-header">
+                        <h3 class="output-title">Environment Configuration (.env)</h3>
+                        <button class="copy-button" onclick="copyToClipboard('${escapeForAttribute(result.envExample)}', this)">
+                            Copy
+                        </button>
+                    </div>
+                    <div class="code-block">
+                        <pre>${escapeHtml(result.envExample)}</pre>
+                    </div>
+                </div>
+                
+                <div class="output-section">
+                    <h3 class="output-title">Deployment Instructions</h3>
+                    <div class="info-box" style="margin-top: 12px;">
+                        <div style="white-space: pre-wrap; font-family: var(--font-sans);">${escapeHtml(result.instructions)}</div>
+                    </div>
+                </div>
+                
+                ${result.structureValid === false ? `
+                    <div class="info-box" style="margin-top: var(--space-xl); background: #FEF3C7; border-color: #FCD34D;">
+                        <h4 style="color: #92400E;">Validation Warning</h4>
+                        <p style="margin-top: 8px;">The generated code may need manual adjustments. Please review the SP1 function calls carefully.</p>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function showError(message) {
+            const output = document.getElementById('output');
+            output.innerHTML = `
+                <div class="status status-error">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>${escapeHtml(message)}</span>
+                </div>
+            `;
+        }
+
+        function toggleCollapsible(element) {
+            element.classList.toggle('open');
+            const arrow = element.querySelector('.collapsible-header span:last-child');
+            arrow.textContent = element.classList.contains('open') ? '?' : '?';
+        }
+
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = 'var(--success)';
+                button.style.color = 'white';
+                button.style.borderColor = 'var(--success)';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '';
+                    button.style.color = '';
+                    button.style.borderColor = '';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                button.textContent = 'Failed';
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                }, 2000);
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function escapeForAttribute(text) {
+            return text.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+        }
+
+        // Update cost estimate when code changes
+        document.getElementById('code').addEventListener('input', debounce(updateCostEstimate, 500));
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
